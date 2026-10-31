@@ -1,0 +1,20 @@
+PMBI-Net local research distribution
+
+This project retains code from TQNet:
+https://github.com/ACAT-SCUT/TQNet
+Temporal Query Network for Efficient Multivariate Time Series Forecasting,
+Shengsheng Lin, Haojun Chen, Haijie Wu, Chunyun Qiu, Weiwei Lin, ICML 2025.
+The original local Apache License 2.0 is preserved verbatim in LICENSE.
+
+Local modifications: PMBI-Net V2 temporal pyramid (pre-existing research code),
+portable configuration/entry/registry adaptation, independent migration checks and documentation.
+Original model files were copied without algorithm changes during migration.
+Original TQNet acknowledges CycleNet, SparseTSF, iTransformer, SegRNN, PatchTST,
+LTSF-Linear, Informer, Autoformer, FEDformer, Pyraformer, RevIN and tsai.
+No assertion is made that datasets or trained weights share the source-code license.
+Publication authorization and the ownership/license of local PMBI-Net additions
+must be confirmed by the authors before any public release. No repository was published.
+
+PMBI-Net naming refactor: full V2 implementation copied into models/PMBI_Net.py,
+helper functions moved unchanged to utils/pmbi_helpers.py; registry/configuration,
+explicit legacy evaluation and documentation updated. No model algorithm changed.

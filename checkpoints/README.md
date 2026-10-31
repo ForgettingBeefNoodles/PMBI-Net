@@ -1,0 +1,1 @@
+reference_PEMS04_96 contains a copied, SHA256-verified historical best checkpoint, scaler and reference records for portability tests. It is not a new training result; excluded from Git. New training checkpoints go under runs/.

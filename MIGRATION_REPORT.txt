@@ -1,0 +1,64 @@
+PMBI-Net 独立工程迁移报告
+
+A. 工程
+源：TQNet+1（只读，未修改）。目标：TQNet+2。
+目标原有19个顶层代码/记录项目完整保存在 _pre_migration_backup/20261030_original；数据原位保留，无删除，无自动复制大型数据。
+活动目录：run.py；models（3个必要模型文件）；exp（正式训练及实验基类）；data_provider；utils；configs；scripts；dataset；runs；results；checkpoints；provenance；migration_checks。
+layers仅保留说明，真实依赖图中未引用网络层目录。
+详细文件树见 migration_checks/ACTIVE_FILE_TREE.txt。
+
+B. 复制文件
+models/TQNet.py、models/TQNet_Pyramid.py、models/TQNet_Pyramid_V2.py；
+exp/exp_basic.py、exp/exp_main.py、exp/exp_pyramid.py；
+data_provider/data_factory.py、data_provider/data_loader.py；
+utils/tools.py、utils/timefeatures.py、utils/metrics.py；LICENSE。
+复制文件与SHA256见 migration_checks/copied_files.json。
+另复制正式PEMS04-96 best.pth、training_scaler.npz及TRAINED/metrics参考记录到 checkpoints/reference_PEMS04_96；未复制大体积预测数组。
+
+C. 入口及新增内容
+run.py保留原argparse参数体系，新增--config、--exp_key、--check_config与明确布尔解析；命令行 > 配置 > 原默认值。
+exp_main仅精简模型导入和注册；exp_pyramid仅根目录路径解析及v2_full参数取值兼容。
+exp_pyramid_v2负责正式版本调度、完整配置/源码/数据签名、防覆盖和CPU回退；使用原Exp_Pyramid的训练、验证、评估及恢复方法。
+新增configs/pmbi_hparams.py、4个BAT/SH、scripts/verify_portability.py、环境/来源说明、README、NOTICE、.gitignore及核验报告。
+不注册HiddenAdd、PeriodQuery等研究变体；不改forward、初始化、参数名称或随机数消耗。
+
+D. 配置
+PEMS03/04/07/08：12、24、48、96（16组）；Traffic：96、192、336、720（4组）。
+20组均从各自已完成正式V2 Full配置读取，并核对checkpoint哈希和完成证据。没有配置缺项，没有用一组推测其他任务。
+保留真实文件名Traffic.csv（大写T），Linux区分大小写。
+provenance/formal_configs.json记录逐任务来源及历史签名差异；不声称这些参数已经逐任务最优。
+
+E. 独立性
+20组参数与历史配置对照通过；路径均项目内；活动源码/配置/脚本未发现旧电脑绝对路径或跨工程依赖。
+在项目外工作目录调用配置检查成功。无效exp_key明确失败；缺少当前配置best的test-only入口明确失败，未启动训练。
+目标已存在的5个所需数据文件均与正式数据SHA256一致。数据未修改。
+私有备份与本机测试报告可能保留旧路径，均被.gitignore排除，不纳入公开源码。
+
+F/G. 实测验证
+语法、导入、注册、20组配置检查通过。
+CPU固定随机输入[2,96,307]输出[2,96,307]；参数量1,564,320。
+真实best checkpoint strict=True加载通过；全部state_dict键名及形状兼容。
+相同真实权重与固定输入：迁移前后最大绝对输出误差=0.0，容差1e-6。
+新工程独立GPU评估：完整测试集3303窗口，97,346,016个元素。
+MSE=0.10294593979487245；MAE=0.20917778096668083，与源正式记录一致（容差1e-7）。
+训练集StandardScaler均值/方差/尺度与原归档精确一致。没有使用测试集拟合Scaler。
+训练算法类AST及优化器/数据方法AST保持一致。
+
+H. 命令（在新工程，已激活Python环境）
+训练：python run.py --config configs/pmbi_hparams.py --exp_key PEMS04_96 --is_training 1
+测试：python run.py --config configs/pmbi_hparams.py --exp_key PEMS04_96 --is_training 0
+续训：训练命令增加 --resume。
+参考权重核验：python scripts/verify_portability.py --evaluate_reference
+训练/测试BAT和SH见scripts/。测试命令读取新runs中的对应best；新runs尚未训练时明确报缺失。复制的旧权重单独保存在reference目录，通过核验脚本评估，绝不冒充新训练成果。
+
+I. 风险与未执行事项
+本次没有新训练，未在新电脑/Linux环境实际训练；环境变化可能造成数值波动。
+仅PEMS04-96完成迁移后完整指标复现；其他19组已核验配置/数据，但未重新推理或训练。
+旧入口和注册文件历史哈希有差异；模型和数据及正式训练器一致。utils/tools.py唯一历史变化为np.Inf改成np.inf，见PUBLICATION_REVIEW.md。
+断点恢复训练循环原样保留，本次未执行新的训练中断恢复实验。
+第三方Apache-2.0原许可证原样保留。PMBI新增代码归属及公开授权、数据/权重分发许可需作者确认。未创建远程仓库、未上传。
+
+J. 计算逻辑
+原三个模型文件逐字节相同；原训练/验证/测试类AST完全相同；无模型或指标计算变化。
+改动仅涉及必要注册、配置入口、相对路径、运行管理及CPU支持。
+TQNet+1受保护代码哈希复核无变化；旧工程未删除；正式训练次数=0。

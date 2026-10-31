@@ -1,0 +1,1 @@
+New formal runs appear here with configuration/source/data fingerprint IDs. The original flat artifact layout is preserved: config.json, train.log, training_log.csv, TRAINED.json, metrics.json, pred.npy, true.npy and checkpoints/best.pth,last.pth. Do not publish this directory.
